@@ -1,0 +1,235 @@
+{
+  "currency": "AED",
+  "categories": [
+    {
+      "name": "Tea",
+      "items": [
+        {
+          "id": "tea-black",
+          "title": "Black Tea",
+          "description": "Classic premium black tea blend brewed to perfection",
+          "price": 12.00,
+          "category": "Tea",
+          "isPopular": false,
+          "isPromo": false
+        },
+        {
+          "id": "tea-green",
+          "title": "Green Tea",
+          "description": "Refreshing and antioxidant-rich green tea leaves",
+          "price": 12.00,
+          "category": "Tea",
+          "isPopular": false,
+          "isPromo": false
+        },
+        {
+          "id": "tea-rooibos",
+          "title": "Rooibos Tea",
+          "description": "Naturally caffeine-free herbal South African rooibos",
+          "price": 12.00,
+          "category": "Tea",
+          "isPopular": false,
+          "isPromo": false
+        },
+        {
+          "id": "tea-hibiscus",
+          "title": "Hibiscus Tea",
+          "description": "Tart, floral, and vibrant iced hibiscus infusion",
+          "price": 12.00,
+          "category": "Tea",
+          "isPopular": false,
+          "isPromo": false
+        },
+        {
+          "id": "tea-macha-latte",
+          "title": "Macha Latte",
+          "description": "Creamy Japanese matcha green tea with steamed milk",
+          "price": 12.00,
+          "category": "Tea",
+          "isPopular": true,
+          "isPromo": false
+        }
+      ]
+    },
+    {
+      "name": "Caffeine Free",
+      "items": [
+        {
+          "id": "caf-summer-zest",
+          "title": "Summer Zest",
+          "description": "Zesty and refreshing citrus mocktail cooler",
+          "price": 12.00,
+          "category": "Caffeine Free",
+          "isPopular": false,
+          "isPromo": false
+        },
+        {
+          "id": "caf-lavender-spritzer",
+          "title": "Lavender Spritzer",
+          "description": "Calming floral lavender spritzer with sparkling water",
+          "price": 12.00,
+          "category": "Caffeine Free",
+          "isPopular": false,
+          "isPromo": false
+        },
+        {
+          "id": "caf-pomegranate-punch",
+          "title": "Pomegranate Punch",
+          "description": "Sweet and tangy pomegranate blend over ice",
+          "price": 12.00,
+          "category": "Caffeine Free",
+          "isPopular": false,
+          "isPromo": false
+        },
+        {
+          "id": "caf-hot-chocolate-nutella",
+          "title": "Hot Chocolate / Nutella",
+          "description": "Rich cocoa blend infused with creamy Nutella hazelnut spread",
+          "price": 12.00,
+          "category": "Caffeine Free",
+          "isPopular": true,
+          "isPromo": false
+        },
+        {
+          "id": "caf-pina-colada",
+          "title": "Piña Colada",
+          "description": "Tropical coconut milk and pineapple blend",
+          "price": 12.00,
+          "category": "Caffeine Free",
+          "isPopular": false,
+          "isPromo": false
+        },
+        {
+          "id": "caf-mango-mango",
+          "title": "Mango Mango",
+          "description": "Luscious double-mango iced refresher",
+          "price": 12.00,
+          "category": "Caffeine Free",
+          "isPopular": false,
+          "isPromo": false
+        },
+        {
+          "id": "caf-banana-choco-shake",
+          "title": "Banana Chocolate - Protein Shake",
+          "description": "High-protein banana chocolate fitness shake",
+          "price": 12.00,
+          "category": "Caffeine Free",
+          "isPopular": false,
+          "isPromo": false
+        }
+      ]
+    },
+    {
+      "name": "Snacks",
+      "items": [
+        {
+          "id": "snack-acai-bowl",
+          "title": "Acai Bowl (Banana - Strawberry - Blueberry)",
+          "description": "Organic acai topped with fresh sliced banana, strawberries, and blueberries",
+          "price": 14.00,
+          "category": "Snacks",
+          "isPopular": true,
+          "isPromo": false
+        },
+        {
+          "id": "snack-acai-smoothie",
+          "title": "Acai Smoothie (Banana - Strawberry)",
+          "description": "Blended acai smoothie with ripe banana and fresh strawberries",
+          "price": 16.00,
+          "category": "Snacks",
+          "isPopular": false,
+          "isPromo": false
+        },
+        {
+          "id": "snack-snow-ice",
+          "title": "New Snow Ice",
+          "description": "Fluffy Korean shaved snow ice dessert",
+          "price": 12.00,
+          "category": "Snacks",
+          "isPopular": false,
+          "isPromo": false
+        }
+      ]
+    },
+    {
+      "name": "Food",
+      "items": [
+        {
+          "id": "food-muffin-assorted",
+          "title": "Assorted Muffins",
+          "description": "Freshly baked blueberry, chocolate chip, and double chocolate muffins",
+          "price": 12.00,
+          "category": "Food",
+          "isPopular": false,
+          "isPromo": false
+        },
+        {
+          "id": "food-croissant-butter",
+          "title": "Butter Croissant",
+          "description": "Flaky, golden-baked French butter croissant",
+          "price": 15.00,
+          "category": "Food",
+          "isPopular": true,
+          "isPromo": false
+        },
+        {
+          "id": "food-sandwich-artisanal",
+          "title": "Artisanal Gourmet Sandwich",
+          "description": "Freshly prepared turkey breast and pesto sandwich on sourdough",
+          "price": 22.00,
+          "category": "Food",
+          "isPopular": false,
+          "isPromo": false
+        }
+      ]
+    },
+    {
+      "name": "Coffee (Featured)",
+      "items": [
+        {
+          "id": "coffee-iced-latte",
+          "title": "Iced Latte",
+          "description": "Signature espresso with cold milk over ice",
+          "price": 16.00,
+          "category": "Coffee",
+          "arGlbUrl": "/models/iced_latte_16oz.glb",
+          "arUsdzUrl": "/models/iced_latte_16oz.usdz",
+          "isPopular": true,
+          "isPromo": false
+        },
+        {
+          "id": "coffee-cold-brew",
+          "title": "Cold Brew",
+          "description": "Steeped for 18 hours for maximum smoothness",
+          "price": 18.00,
+          "category": "Coffee",
+          "isPopular": true,
+          "isPromo": false
+        },
+        {
+          "id": "coffee-caramel-cloud-latte",
+          "title": "Caramel Cloud Latte",
+          "description": "Featured Drink of the Month: Espresso layered with whipped caramel cloud cold foam",
+          "price": 20.00,
+          "category": "Coffee",
+          "isPopular": true,
+          "isPromo": true
+        }
+      ]
+    }
+  ],
+  "customizations": {
+    "milkAlternatives": [
+      { "id": "milk-oatly", "title": "Oatly", "extraCost": 0.00 },
+      { "id": "milk-almond", "title": "Almond Milk", "extraCost": 0.00 },
+      { "id": "milk-coconut", "title": "Coconut Milk", "extraCost": 0.00 },
+      { "id": "milk-lactose-free", "title": "Lactose Free", "extraCost": 0.00 }
+    ],
+    "toppings": [
+      { "id": "top-blue-granola", "title": "Blueberry - Granola", "price": 4.00 },
+      { "id": "top-oats-honey-almonds", "title": "Oats - Honey - Almonds", "price": 4.00 },
+      { "id": "top-almond-peanut-butter", "title": "Almond Butter - Peanut Butter", "price": 4.00 },
+      { "id": "top-chia-kiwi", "title": "Chia Seeds - Kiwi", "price": 4.00 }
+    ]
+  }
+}
