@@ -1,6 +1,7 @@
 import { PrismaClient } from '@prisma/client';
 import fs from 'node:fs';
 import path from 'node:path';
+import { hashPassword } from '../src/lib/password';
 
 const prisma = new PrismaClient();
 
@@ -37,10 +38,11 @@ const randInt = (min: number, max: number) => Math.floor(rand() * (max - min + 1
 
 const DAY_MS = 24 * 60 * 60 * 1000;
 const SARA_PHONE = '+971500000000';
+const OMAR_PHONE = '+971500000001';
 const POINTS_PER_AED = 10;
 
 const OTHER_CUSTOMERS = [
-  { phone: '+971500000001', fullName: 'Omar Khalid', pointsBalance: 320, tierLevel: 'Base', streakCount: 1 },
+  { phone: OMAR_PHONE, fullName: 'Omar Khalid', pointsBalance: 320, tierLevel: 'Base', streakCount: 1 },
   { phone: '+971500000002', fullName: 'Layla Hassan', pointsBalance: 860, tierLevel: 'Base', streakCount: 2 },
   { phone: '+971500000003', fullName: 'Rahul Menon', pointsBalance: 2150, tierLevel: 'Platinum', streakCount: 5 },
   { phone: '+971500000004', fullName: 'Aisha Rahman', pointsBalance: 540, tierLevel: 'Base', streakCount: 0 },
@@ -72,6 +74,16 @@ async function seedMenu(): Promise<MenuJsonItem[]> {
 }
 
 async function seedUsers(now: Date): Promise<Map<string, string>> {
+  const omarEmail = process.env.DEMO_OMAR_EMAIL?.trim().toLowerCase() || undefined;
+  const omarPassword = process.env.DEMO_OMAR_PASSWORD || undefined;
+  if (Boolean(omarEmail) !== Boolean(omarPassword)) {
+    throw new Error("Set both DEMO_OMAR_EMAIL and DEMO_OMAR_PASSWORD to configure Omar's demo login");
+  }
+  const omarCredentials =
+    omarEmail && omarPassword
+      ? { email: omarEmail, passwordHash: await hashPassword(omarPassword) }
+      : undefined;
+
   // Sara — the hero demo profile
   const sara = await prisma.userProfile.upsert({
     where: { phone: SARA_PHONE },
@@ -97,7 +109,11 @@ async function seedUsers(now: Date): Promise<Map<string, string>> {
   const users = new Map([[SARA_PHONE, sara.id]]);
   // A few other campus customers so historical order volume looks realistic
   for (const c of OTHER_CUSTOMERS) {
-    const data = { ...c, lastOrderAt: new Date(now.getTime() - randInt(1, 6) * DAY_MS) };
+    const data = {
+      ...c,
+      lastOrderAt: new Date(now.getTime() - randInt(1, 6) * DAY_MS),
+      ...(c.phone === OMAR_PHONE && omarCredentials ? omarCredentials : {}),
+    };
     const user = await prisma.userProfile.upsert({
       where: { phone: c.phone },
       update: data,

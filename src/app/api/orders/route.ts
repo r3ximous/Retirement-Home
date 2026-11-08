@@ -1,4 +1,6 @@
 import { NextResponse, type NextRequest } from "next/server";
+import { getServerSession } from "next-auth";
+import { authOptions } from "@/lib/next-auth";
 import { prisma } from "@/lib/prisma";
 import { validateAndPriceOrder } from "@/lib/orderValidation";
 
@@ -90,6 +92,7 @@ export async function POST(req: NextRequest) {
 
   try {
     const slotDate = pickupTime === undefined ? null : new Date(pickupTime);
+    const session = await getServerSession(authOptions);
     const order = await serializeReservation(() => prisma.$transaction(async (tx) => {
       // Take SQLite's write lock before reading capacity; the final check and
       // reservation then serialize with competing order-creation transactions.
@@ -120,7 +123,7 @@ export async function POST(req: NextRequest) {
       const createdOrder = await tx.order.create({
         data: {
           queueNumber,
-          customerId: customer?.id ?? null,
+          customerId: session?.user.id ?? customer?.id ?? null,
           customerPhone: phone,
           itemsJson: JSON.stringify(currentValidation.verifiedItems),
           totalAmount: currentValidation.totalAmount,
