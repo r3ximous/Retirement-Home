@@ -32,6 +32,20 @@ body {
   font-family: var(--font-geist-sans), Arial, Helvetica, sans-serif;
 }
 
+main {
+  animation: page-enter 320ms cubic-bezier(0.2, 0.7, 0.3, 1) both;
+}
+
+button,
+a[href] {
+  transition: scale 140ms ease;
+}
+
+button:active:not(:disabled),
+a[href]:active {
+  scale: 0.97;
+}
+
 .mountain-layout {
   isolation: isolate;
   position: relative;
@@ -97,6 +111,17 @@ body {
   }
 }
 
+@keyframes page-enter {
+  from {
+    opacity: 0;
+    translate: 0 8px;
+  }
+  to {
+    opacity: 1;
+    translate: 0;
+  }
+}
+
 .animate-steam {
   animation: steam-rise 1.8s ease-in-out infinite;
 }
@@ -110,6 +135,15 @@ body {
 }
 
 @media (prefers-reduced-motion: reduce) {
+  main {
+    animation: none;
+  }
+
+  button,
+  a[href] {
+    transition: none;
+  }
+
   .animate-steam,
   .animate-coffee-ready,
   .animate-dice-roll {

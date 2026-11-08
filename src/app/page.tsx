@@ -4,7 +4,15 @@ import Link from "next/link";
 import { useEffect, useSyncExternalStore } from "react";
 import { useRouter } from "next/navigation";
 import { useSession } from "next-auth/react";
-import { Coffee, Globe2, House, Sparkles, UserRound } from "lucide-react";
+import {
+  ArrowRight,
+  CalendarDays,
+  Coffee,
+  Globe2,
+  House,
+  Sparkles,
+  UserRound,
+} from "lucide-react";
 import { useCart } from "./components/cart-provider";
 import ARPreviewButton from "./components/ar-preview-button";
 import MenuItemCard from "./components/menu-item-card";
@@ -160,6 +168,31 @@ export default function Home() {
             </Link>
           </section>
         </div>
+
+        <section
+          aria-labelledby="events-heading"
+          className="mt-10 rounded-2xl bg-altitude-navy p-5 text-altitude-white mobile:flex mobile:items-center mobile:justify-between mobile:gap-6 mobile:p-7"
+        >
+          <div className="flex items-start gap-4">
+            <span className="flex size-11 shrink-0 items-center justify-center rounded-full bg-white/10">
+              <CalendarDays aria-hidden="true" size={21} />
+            </span>
+            <div>
+              <h2 id="events-heading" className="text-lg font-bold">
+                Campus clubs &amp; events
+              </h2>
+              <p className="mt-1 text-sm text-white/75">
+                Find your people and see what&apos;s happening at RIT Dubai.
+              </p>
+            </div>
+          </div>
+          <Link
+            href="/events"
+            className="mt-5 inline-flex items-center gap-2 rounded-full bg-white px-4 py-2 text-sm font-semibold text-altitude-navy transition hover:bg-white/90 mobile:mt-0"
+          >
+            Explore events <ArrowRight aria-hidden="true" size={16} />
+          </Link>
+        </section>
 
         <section
           aria-labelledby="rewards-heading"

@@ -15,6 +15,9 @@ follow its progress; staff can manage the live kitchen queue.
   order. The app validates item availability and prices on the server, assigns
   a queue number, and opens a tracking page that updates as the order moves
   through the kitchen.
+- **Interactive menu (voice commands and Augmented Reality)** With an option to 
+  order items through voice commands, the app can be used hands-free. Food Items 
+  can be viewed in Augmented Reality by placing the 16 oz model in your space.
 - **Manage the kitchen:** Staff use `/kds` to view incoming orders and move them
   through brewing, ready, and collected. The kitchen display and customer
   tracking page receive live updates through Server-Sent Events (SSE).

@@ -15,7 +15,7 @@ export type CartItem = Pick<MenuItem, "id" | "title" | "price"> & {
 type CartContextValue = {
   items: CartItem[];
   totalItems: number;
-  addItem: (item: MenuItem) => void;
+  addItem: (item: MenuItem, quantity?: number) => void;
   changeQuantity: (itemId: string, change: number) => void;
   clearCart: () => void;
 };
@@ -25,21 +25,21 @@ const CartContext = createContext<CartContextValue | null>(null);
 export function CartProvider({ children }: { children: ReactNode }) {
   const [items, setItems] = useState<CartItem[]>([]);
 
-  function addItem(item: MenuItem) {
+  function addItem(item: MenuItem, quantity = 1) {
     setItems((currentItems) => {
       const existing = currentItems.find((cartItem) => cartItem.id === item.id);
 
       if (existing) {
         return currentItems.map((cartItem) =>
           cartItem.id === item.id
-            ? { ...cartItem, quantity: cartItem.quantity + 1 }
+            ? { ...cartItem, quantity: cartItem.quantity + quantity }
             : cartItem,
         );
       }
 
       return [
         ...currentItems,
-        { id: item.id, title: item.title, price: item.price, quantity: 1 },
+        { id: item.id, title: item.title, price: item.price, quantity },
       ];
     });
   }

@@ -5,6 +5,7 @@ import Link from "next/link";
 import { Menu as MenuIcon, Search } from "lucide-react";
 import MenuItemCard from "../components/menu-item-card";
 import { menuItems, type MenuItem } from "./menu-data";
+import VoiceOrderAssistant from "./voice-order-assistant";
 
 const categoryTabs = [
   "Best sellers",
@@ -69,6 +70,8 @@ export default function MenuPage() {
             <MenuIcon aria-hidden="true" size={19} />
           </Link>
         </div>
+
+        <VoiceOrderAssistant />
 
         <div className="grid gap-4 md:grid-cols-[7rem_minmax(0,1fr)] md:gap-6">
           <aside aria-label="Menu categories">
