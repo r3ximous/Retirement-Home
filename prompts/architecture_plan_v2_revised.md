@@ -941,6 +941,35 @@ export default function GodModePage() {
 
 ```
 
+Update the `tailwind.config.js` file referenced in the directory tree of architecture_plan_v2_revised.md to define explicit semantic screen sizes.
+
+```javascript
+/** @type {import('tailwindcss').Config} */
+module.exports = {
+  content: [
+    "./src/app/**/*.{js,ts,jsx,tsx,mdx}",
+    "./src/components/**/*.{js,ts,jsx,tsx,mdx}",
+    "./src/lib/**/*.{js,ts,jsx,tsx,mdx}",
+  ],
+  theme: {
+    extend: {
+      screens: {
+        'mobile': '480px',     // Standard mobile breakpoint
+        'tablet': '768px',     // Tablet breakpoint (e.g., iPad portrait)
+        'desktop': '1024px',   // Standard desktop/laptop breakpoint
+        'desktop-xl': '1440px' // Large desktop monitor breakpoint
+      },
+    },
+  },
+  plugins: [],
+};
+
+```
+
+* **Integration:** Placing the `screens` object inside `extend` retains Tailwind's default breakpoints (`sm`, `md`, `lg`, `xl`, `2xl`) while adding your explicit naming conventions.
+* **Usage:** Apply these specific breakpoints directly in your React components using prefixes, such as `className="w-full tablet:w-1/2 desktop:w-1/3"`.
+* **Strict Overrides:** If you want to disable Tailwind's default sizes entirely and force the development team to use only `mobile`, `tablet`, and `desktop`, move the `screens` object out of `extend` and place it directly under `theme`.
+
 ---
 
 #### 11. Step-by-Step Coding Agent Execution Blueprint
@@ -985,12 +1014,9 @@ stripe listen --forward-to localhost:3000/api/webhooks/stripe
 # Step 7: Verify (Run as Node server)
 npm run build
 npm run start          
-
 ```
 
-
 **Appendix: Known Tradeoffs Slide**
-
 * Demo secret protects staff screens; customer APIs open by design (walk-up cafe model).
 * Phone number is the loyalty key — OTP is roadmap.
 * SSE requires a long-lived Node server — not serverless-deployable in this prototype.

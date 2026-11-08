@@ -1,0 +1,118 @@
+@config "../../tailwind.config.js";
+@import "tailwindcss";
+
+:root {
+  --background: #ffffff;
+  --foreground: #090b10;
+  --brand-black: #090b10;
+  --brand-white: #ffffff;
+  --brand-navy: #142744;
+  --brand-mountain: #1f1f20;
+  color-scheme: light;
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-brand-black: var(--brand-black);
+  --color-brand-white: var(--brand-white);
+  --color-brand-navy: var(--brand-navy);
+  --color-brand-mountain: var(--brand-mountain);
+  --font-sans: var(--font-geist-sans);
+  --font-mono: var(--font-geist-mono);
+  --breakpoint-mobile: 30rem;
+  --breakpoint-tablet: 48rem;
+  --breakpoint-desktop: 64rem;
+  --breakpoint-desktop-xl: 90rem;
+}
+
+body {
+  background: var(--background);
+  color: var(--foreground);
+  font-family: var(--font-geist-sans), Arial, Helvetica, sans-serif;
+}
+
+.mountain-layout {
+  isolation: isolate;
+  position: relative;
+}
+
+.mountain-layout::before {
+  background: var(--brand-mountain);
+  clip-path: polygon(
+    0 100%,
+    0 73%,
+    15% 43%,
+    25% 77%,
+    42% 13%,
+    59% 77%,
+    76% 17%,
+    92% 77%,
+    100% 51%,
+    100% 100%
+  );
+  content: "";
+  height: clamp(14rem, 42vh, 30rem);
+  inset: auto 0 0;
+  opacity: 1;
+  pointer-events: none;
+  position: absolute;
+  z-index: -1;
+}
+
+@keyframes steam-rise {
+  0% {
+    opacity: 0.2;
+    transform: translateY(4px);
+  }
+  50% {
+    opacity: 1;
+    transform: translateY(-2px);
+  }
+  100% {
+    opacity: 0.2;
+    transform: translateY(-7px);
+  }
+}
+
+@keyframes coffee-ready {
+  0%,
+  100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.06);
+  }
+}
+
+@keyframes dice-roll {
+  0% {
+    transform: translateY(0) rotate(0);
+  }
+  50% {
+    transform: translateY(-10px) rotate(12deg);
+  }
+  100% {
+    transform: translateY(0) rotate(0);
+  }
+}
+
+.animate-steam {
+  animation: steam-rise 1.8s ease-in-out infinite;
+}
+
+.animate-coffee-ready {
+  animation: coffee-ready 1s ease-in-out 2;
+}
+
+.animate-dice-roll {
+  animation: dice-roll 320ms ease-in-out infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .animate-steam,
+  .animate-coffee-ready,
+  .animate-dice-roll {
+    animation: none;
+  }
+}

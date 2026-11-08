@@ -1,0 +1,96 @@
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+model UserProfile {
+  id             String        @id @default(uuid())
+  phone          String?       @unique
+  email          String?       @unique
+  passwordHash   String?
+  fullName       String
+  pointsBalance  Int           @default(1240)
+  tierLevel      String        @default("Gold") 
+  streakCount    Int           @default(3)
+  lastOrderAt    DateTime      @default(now())
+  lastGachaAt    DateTime?     
+  createdAt      DateTime      @default(now())
+  orders         Order[]
+  gachaRewards   GachaReward[]
+  rsvps          EventRSVP[]   
+}
+
+model MenuItem {
+  id          String   @id @default(uuid())
+  title       String
+  description String
+  category    String
+  price       Float    
+  arGlbUrl    String?
+  arUsdzUrl   String?
+  isPopular   Boolean  @default(false)
+  isPromo     Boolean  @default(false)
+  inStock     Boolean  @default(true)
+  orderCount  Int      @default(0) 
+  createdAt   DateTime @default(now())
+
+  @@index([category, isPopular])
+}
+
+model Order {
+  id              String      @id @default(uuid())
+  queueNumber     Int         @unique
+  customerId      String?
+  customer        UserProfile? @relation(fields: [customerId], references: [id])
+  customerPhone   String?
+  itemsJson       String
+  totalAmount     Float
+  status          String      @default("Pending") 
+  timeslot        DateTime?
+  isPaid          Boolean     @default(false)
+  stripeSessionId String?     @unique 
+  pointsAwarded   Int         @default(0) 
+  smsSent         Boolean     @default(false)
+  createdAt       DateTime    @default(now())
+  updatedAt       DateTime    @updatedAt
+
+  @@index([status, timeslot]) 
+  @@index([status, createdAt])
+}
+
+model GachaReward {
+  id          String      @id @default(uuid())
+  userId      String
+  customer    UserProfile @relation(fields: [userId], references: [id])
+  rewardType  String      
+  rewardLabel String
+  isClaimed   Boolean     @default(false)
+  unlockedAt  DateTime    @default(now())
+  pullSeed    Int         
+}
+
+model ClubEvent {
+  id             String      @id @default(uuid())
+  clubName       String
+  eventTitle     String
+  description    String
+  eventDate      DateTime
+  bundleItemIds  String
+  discountToken  String      @unique
+  rsvps          EventRSVP[] 
+}
+
+model EventRSVP { 
+  id        String    @id @default(uuid())
+  eventId   String
+  event     ClubEvent @relation(fields: [eventId], references: [id])
+  userId    String
+  customer  UserProfile @relation(fields: [userId], references: [id])
+  createdAt DateTime  @default(now())
+
+  @@unique([eventId, userId]) 
+}

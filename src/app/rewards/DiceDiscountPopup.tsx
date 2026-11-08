@@ -1,11 +1,8 @@
 import { useState, useEffect, useRef, useId, CSSProperties } from "react"
 import {
-    addPropertyControls,
-    ControlType,
     motion,
     AnimatePresence,
-    useIsStaticRenderer,
-} from "framer"
+} from "framer-motion"
 
 interface ImageItem {
     src: string
@@ -326,6 +323,8 @@ interface DiceDiscountPopupProps {
     accentColor?: string
     demoMode?: boolean
     theme?: string
+    gachaAvailable?: boolean
+    onGachaRoll?: () => Promise<{ label: string }>
     asPopup?: boolean
     trigger?: "manual" | "delay" | "scroll"
     delaySeconds?: number
@@ -363,6 +362,8 @@ export default function DiceDiscountPopup(props: DiceDiscountPopupProps) {
         accentColor,
         demoMode = false,
         theme = "ecommerce",
+        gachaAvailable = false,
+        onGachaRoll,
         asPopup = false,
         trigger = "manual",
         delaySeconds = 4,
@@ -389,7 +390,7 @@ export default function DiceDiscountPopup(props: DiceDiscountPopupProps) {
         customBackground,
     } = props
 
-    const isStatic = useIsStaticRenderer()
+    const isStatic = false
     const uid = useId()
     const rootRef = useRef<HTMLDivElement>(null)
     const demoBarRef = useRef<HTMLDivElement>(null)
@@ -442,6 +443,7 @@ export default function DiceDiscountPopup(props: DiceDiscountPopupProps) {
 
     const activeThemeKey = demoMode ? demoTheme : theme
     const baseTheme = THEMES[activeThemeKey] || THEMES.ecommerce
+    const isGachaMode = typeof onGachaRoll === "function"
 
     const ov = (base: string, override?: string): string =>
         override && override.trim() !== "" ? override : base
@@ -484,6 +486,16 @@ export default function DiceDiscountPopup(props: DiceDiscountPopupProps) {
     const isPopupMode = demoMode ? demoAsPopup : asPopup
     const activeWidgetPosition = demoMode ? demoWidgetPosition : widgetPosition
     const rawAccent = demoMode ? demoAccentColor : accentColor
+    const canRoll = isGachaMode ? gachaAvailable : rollsLeft > 0
+    const displayedMessage = isGachaMode
+        ? isRolling
+            ? "Rolling..."
+            : currentReward
+              ? "Your Gacha reward has been saved"
+              : gachaAvailable
+                ? "One daily roll available"
+                : "Today's roll has been used"
+        : message
     const resolvedAccent =
         rawAccent && rawAccent.toLowerCase() !== "#ffffff"
             ? rawAccent
@@ -494,16 +506,20 @@ export default function DiceDiscountPopup(props: DiceDiscountPopupProps) {
     const rewardsKey = `dice-rewards${suffix}`
 
     useEffect(() => {
+        if (isGachaMode) return
+
         const savedRolls = localStorage.getItem(rollsKey)
         const savedRewards = localStorage.getItem(rewardsKey)
 
+        // Hydrate the persisted game state after the browser is available.
+        // eslint-disable-next-line react-hooks/set-state-in-effect
         if (savedRolls !== null) setRollsLeft(parseInt(savedRolls))
         if (savedRewards) setRewards(JSON.parse(savedRewards))
 
         if (savedRolls === "0") {
             setMessage("All rolls used")
         }
-    }, [])
+    }, [gachaAvailable, isGachaMode, rewardsKey, rollsKey])
 
     useEffect(() => {
         return () => {
@@ -516,6 +532,8 @@ export default function DiceDiscountPopup(props: DiceDiscountPopupProps) {
     // Reset open/closed state whenever popup mode is toggled (canvas editing
     // or the Demo Panel's live "Popup Mode" switch)
     useEffect(() => {
+        // This intentionally mirrors the current popup mode prop/state.
+        // eslint-disable-next-line react-hooks/set-state-in-effect
         setPopupOpen(!isPopupMode)
     }, [isPopupMode])
 
@@ -603,7 +621,7 @@ export default function DiceDiscountPopup(props: DiceDiscountPopupProps) {
     }
 
     const rollDice = () => {
-        if (rollsLeft <= 0 || isRolling) return
+        if (!canRoll || isRolling) return
 
         setIsRolling(true)
         setTotal(null)
@@ -612,10 +630,34 @@ export default function DiceDiscountPopup(props: DiceDiscountPopupProps) {
         clearTimeout(rollTimerRef.current)
         clearTimeout(settleTimerRef.current)
 
-        rollTimerRef.current = setTimeout(() => {
+        rollTimerRef.current = setTimeout(async () => {
             const side1 = Math.floor(Math.random() * 6) + 1
             const side2 = Math.floor(Math.random() * 6) + 1
             const sum = side1 + side2
+
+            if (isGachaMode && onGachaRoll) {
+                try {
+                    const reward = await onGachaRoll()
+                    setDice1(side1)
+                    setDice2(side2)
+                    setTotal(sum)
+                    setCurrentReward({ label: reward.label, code: "" })
+                    setIsRolling(false)
+                    setMessage("Your Gacha reward has been saved")
+                    settleTimerRef.current = setTimeout(() => {
+                        setShowPopup(true)
+                    }, 600)
+                } catch (error) {
+                    setIsRolling(false)
+                    setMessage(
+                        error instanceof Error
+                            ? error.message
+                            : "Unable to complete your Gacha roll.",
+                    )
+                }
+                return
+            }
+
             const isDoubles = side1 === side2
             const won = getReward(sum, isDoubles)
 
@@ -737,38 +779,54 @@ export default function DiceDiscountPopup(props: DiceDiscountPopupProps) {
             </div>
 
             <div style={styles.resultCard}>
-                <div style={styles.resultLabel}>RESULT</div>
-                <div style={styles.resultValue} aria-live="polite">
-                    {total !== null ? total : "—"}
+                <div style={styles.resultLabel}>
+                    {isGachaMode ? "GACHA REWARD" : "RESULT"}
+                </div>
+                <div
+                    style={{
+                        ...styles.resultValue,
+                        ...(isGachaMode ? { fontSize: 18, lineHeight: "24px" } : {}),
+                    }}
+                    aria-live="polite"
+                >
+                    {isGachaMode
+                        ? currentReward?.label ?? "—"
+                        : total !== null
+                          ? total
+                          : "—"}
                 </div>
             </div>
 
             <div style={styles.message} aria-live="polite">
-                {message}
+                {displayedMessage}
             </div>
 
             <motion.button
                 onClick={rollDice}
-                whileHover={{ scale: rollsLeft <= 0 || isRolling ? 1 : 1.04 }}
-                whileTap={{ scale: rollsLeft <= 0 || isRolling ? 1 : 0.96 }}
-                disabled={rollsLeft <= 0 || isRolling}
+                whileHover={{ scale: !canRoll || isRolling ? 1 : 1.04 }}
+                whileTap={{ scale: !canRoll || isRolling ? 1 : 0.96 }}
+                disabled={!canRoll || isRolling}
                 style={{
                     ...styles.button,
                     backgroundColor: resolvedAccent,
-                    opacity: rollsLeft <= 0 || isRolling ? 0.5 : 1,
+                    opacity: !canRoll || isRolling ? 0.5 : 1,
                     cursor:
-                        rollsLeft <= 0 || isRolling ? "not-allowed" : "pointer",
+                        !canRoll || isRolling ? "not-allowed" : "pointer",
                 }}
             >
                 {isRolling
                     ? "Rolling..."
-                    : rollsLeft <= 0
-                      ? "No Rolls Left"
-                      : `${activeTheme.buttonText} (${rollsLeft} left)`}
+                    : !canRoll
+                      ? isGachaMode
+                          ? "Come Back Tomorrow"
+                          : "No Rolls Left"
+                      : isGachaMode
+                        ? "Roll for Today's Reward"
+                        : `${activeTheme.buttonText} (${rollsLeft} left)`}
             </motion.button>
 
             {/* Kazanılan Kuponlar - Selected yok */}
-            {rewards.length > 0 && (
+            {!isGachaMode && rewards.length > 0 && (
                 <div style={styles.rewardsSection}>
                     <div style={styles.rewardsTitle}>Your Rewards</div>
 
@@ -863,11 +921,17 @@ export default function DiceDiscountPopup(props: DiceDiscountPopupProps) {
                             <p style={styles.modalDesc}>
                                 <strong>{currentReward.label}</strong>
                             </p>
-                            <div style={styles.codeBox}>
-                                <span style={styles.code}>
-                                    {currentReward.code}
-                                </span>
-                            </div>
+                            {isGachaMode ? (
+                                <p style={styles.modalDesc}>
+                                    Saved to your rewards history.
+                                </p>
+                            ) : (
+                                <div style={styles.codeBox}>
+                                    <span style={styles.code}>
+                                        {currentReward.code}
+                                    </span>
+                                </div>
+                            )}
                             <button
                                 onClick={() => setShowPopup(false)}
                                 style={{
@@ -1590,179 +1654,3 @@ const styles: { [key: string]: CSSProperties } = {
         cursor: "pointer",
     },
 }
-
-addPropertyControls(DiceDiscountPopup, {
-    theme: {
-        type: ControlType.Enum,
-        title: "Concept",
-        options: Object.keys(THEMES),
-        optionTitles: Object.values(THEMES).map((t) => t.name),
-        defaultValue: "ecommerce",
-    },
-    customizeCopy: {
-        type: ControlType.Boolean,
-        title: "Customize Copy",
-        defaultValue: false,
-        enabledTitle: "On",
-        disabledTitle: "Off",
-    },
-    customTitle: {
-        type: ControlType.String,
-        title: "↳ Title",
-        placeholder: "Roll for a Discount",
-        hidden: (p) => !p.customizeCopy,
-    },
-    customSubtitle: {
-        type: ControlType.String,
-        title: "↳ Subtitle",
-        placeholder: "3 free rolls, real savings",
-        hidden: (p) => !p.customizeCopy,
-    },
-    customButtonText: {
-        type: ControlType.String,
-        title: "↳ Roll Button",
-        placeholder: "Roll Dice",
-        hidden: (p) => !p.customizeCopy,
-    },
-    customTriggerText: {
-        type: ControlType.String,
-        title: "↳ Widget Label",
-        placeholder: "Roll for a Discount",
-        hidden: (p) => !p.customizeCopy,
-    },
-    customReward1Label: {
-        type: ControlType.String,
-        title: "↳ Tier 1 Label",
-        placeholder: "5% off",
-        hidden: (p) => !p.customizeCopy,
-    },
-    customReward1Code: {
-        type: ControlType.String,
-        title: "↳ Tier 1 Code",
-        placeholder: "DICE5",
-        hidden: (p) => !p.customizeCopy,
-    },
-    customReward2Label: {
-        type: ControlType.String,
-        title: "↳ Tier 2 Label",
-        placeholder: "10% off",
-        hidden: (p) => !p.customizeCopy,
-    },
-    customReward2Code: {
-        type: ControlType.String,
-        title: "↳ Tier 2 Code",
-        placeholder: "DICE10",
-        hidden: (p) => !p.customizeCopy,
-    },
-    customReward3Label: {
-        type: ControlType.String,
-        title: "↳ Tier 3 Label",
-        placeholder: "15% off",
-        hidden: (p) => !p.customizeCopy,
-    },
-    customReward3Code: {
-        type: ControlType.String,
-        title: "↳ Tier 3 Code",
-        placeholder: "DICE15",
-        hidden: (p) => !p.customizeCopy,
-    },
-    customReward4Label: {
-        type: ControlType.String,
-        title: "↳ Tier 4 Label",
-        placeholder: "20% off",
-        hidden: (p) => !p.customizeCopy,
-    },
-    customReward4Code: {
-        type: ControlType.String,
-        title: "↳ Tier 4 Code",
-        placeholder: "DICE20",
-        hidden: (p) => !p.customizeCopy,
-    },
-    customReward5Label: {
-        type: ControlType.String,
-        title: "↳ Tier 5 Label",
-        placeholder: "25% off",
-        hidden: (p) => !p.customizeCopy,
-    },
-    customReward5Code: {
-        type: ControlType.String,
-        title: "↳ Tier 5 Code",
-        placeholder: "DICE25",
-        hidden: (p) => !p.customizeCopy,
-    },
-    customDoublesLabel: {
-        type: ControlType.String,
-        title: "↳ Doubles Label",
-        placeholder: "Free Shipping",
-        hidden: (p) => !p.customizeCopy,
-    },
-    customDoublesCode: {
-        type: ControlType.String,
-        title: "↳ Doubles Code",
-        placeholder: "DOUBLES",
-        hidden: (p) => !p.customizeCopy,
-    },
-    customBackground: {
-        type: ControlType.Color,
-        title: "↳ Background",
-        optional: true,
-        hidden: (p) => !p.customizeCopy,
-    },
-    accentColor: {
-        type: ControlType.Color,
-        title: "Accent Color",
-        defaultValue: "#0f172a",
-        optional: true,
-    },
-    asPopup: {
-        type: ControlType.Boolean,
-        title: "Popup Mode",
-        defaultValue: false,
-        enabledTitle: "On",
-        disabledTitle: "Off",
-    },
-    trigger: {
-        type: ControlType.Enum,
-        title: "↳ Trigger",
-        options: ["manual", "delay", "scroll"],
-        optionTitles: ["Button Click", "Auto (Delay)", "On Scroll Into View"],
-        defaultValue: "manual",
-        hidden: (p) => !p.asPopup,
-    },
-    delaySeconds: {
-        type: ControlType.Number,
-        title: "↳ Delay",
-        defaultValue: 4,
-        min: 1,
-        max: 60,
-        step: 1,
-        unit: "s",
-        hidden: (p) => !p.asPopup || p.trigger !== "delay",
-    },
-    widgetPosition: {
-        type: ControlType.Enum,
-        title: "↳ Widget Corner",
-        options: ["bottom-right", "bottom-left"],
-        optionTitles: ["Bottom Right", "Bottom Left"],
-        defaultValue: "bottom-right",
-        hidden: (p) => !p.asPopup,
-    },
-    widgetIcon: {
-        type: ControlType.ResponsiveImage,
-        title: "↳ Widget Icon",
-        hidden: (p) => !p.asPopup,
-    },
-    storageKey: {
-        type: ControlType.String,
-        title: "Storage Key",
-        placeholder: "leave empty unless using 2+ instances",
-        defaultValue: "",
-    },
-    demoMode: {
-        type: ControlType.Boolean,
-        title: "Demo Mode",
-        defaultValue: false,
-        enabledTitle: "On",
-        disabledTitle: "Off",
-    },
-})

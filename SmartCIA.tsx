@@ -1,5 +1,4 @@
 import * as React from "react"
-// @ts-ignore
 import { addPropertyControls, ControlType, useIsStaticRenderer } from "framer"
 
 type CtaImportance = "primary" | "secondary" | "tertiary"
@@ -201,10 +200,7 @@ export default function SmartCtaRow(props: Partial<SmartCtaRowProps>) {
         fullWidthOnMobile = true,
     } = props
 
-    const isStatic =
-        typeof useIsStaticRenderer === "function"
-            ? useIsStaticRenderer()
-            : false
+    const isStatic = useIsStaticRenderer()
     const isMobile = useIsMobile(!isStatic)
     const shouldStack = layout === "stacked" || (isMobile && fullWidthOnMobile)
     const shouldFillMobile = isMobile && fullWidthOnMobile
@@ -515,7 +511,6 @@ addPropertyControls(SmartCtaRow, {
         unit: "px",
     },
     font: {
-        // @ts-ignore
         type: ControlType.Font,
         title: "Font",
         controls: "basic",
@@ -523,8 +518,7 @@ addPropertyControls(SmartCtaRow, {
         displayTextAlignment: false,
         defaultFontType: "sans-serif",
         defaultValue: {
-            fontFamily: "Inter",
-            fontWeight: 600,
+            variant: "Semibold",
         },
     },
     fullWidthOnMobile: {
